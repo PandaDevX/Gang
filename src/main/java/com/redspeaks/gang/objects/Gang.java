@@ -2,14 +2,10 @@ package com.redspeaks.gang.objects;
 
 import com.redspeaks.gang.GangPlugin;
 import com.redspeaks.gang.api.chat.ChatUtil;
-import com.redspeaks.gang.api.gangs.GangPlayer;
-import com.redspeaks.gang.api.gangs.GangType;
-import com.redspeaks.gang.api.gangs.LeaderBoard;
-import com.redspeaks.gang.api.gangs.PlayerData;
+import com.redspeaks.gang.api.gangs.*;
 import com.redspeaks.gang.api.events.GangPlayerExpChangeEvent;
 import com.redspeaks.gang.api.events.GangPlayerJoinEvent;
 import com.redspeaks.gang.api.events.GangPlayerLevelUpEvent;
-import com.redspeaks.gang.api.gangs.Storage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -19,7 +15,18 @@ import java.util.UUID;
 public class Gang {
 
     public static GangPlayer getPlayer(OfflinePlayer player) {
-        return new GangPlayer() {
+        if(player == null) {
+            return null;
+        }
+        if(!player.hasPlayedBefore()) {
+            return null;
+        }
+        final GangPlayer gangPlayer = new GangPlayer() {
+            @Override
+            public boolean equals(Object object) {
+                return player.equals(object);
+            }
+
             @Override
             public UUID getUniqueId() {
                 return player.getUniqueId();
@@ -62,17 +69,32 @@ public class Gang {
 
             @Override
             public void addLevel(int level) {
-                if(!Bukkit.isPrimaryThread()) {
-                    Bukkit.getScheduler().runTask(GangPlugin.getInstance(), () -> Bukkit.getPluginManager().callEvent(new GangPlayerLevelUpEvent(this, getLevel(), getLevel() + level)));
-                } else {
-                    Bukkit.getPluginManager().callEvent(new GangPlayerLevelUpEvent(this, getLevel(), getLevel() + level));
+                GangBase gangBase = null;
+                switch (getGang()) {
+                    case MONEY_GANG:
+                        gangBase = getMoneyGang();
+                        break;
+                    case MINER_GANG:
+                        gangBase = getMineGang();
+                        break;
+                    case TOKEN_GANG:
+                        gangBase = null;
+                        break;
                 }
-                getPlayerData().setLevel(getLevel() + level);
+                GangPlayerLevelUpEvent gangPlayerLevelUpEvent = new GangPlayerLevelUpEvent(this, getLevel(), level, gangBase);
+                if (!Bukkit.isPrimaryThread()) {
+                    Bukkit.getScheduler().runTask(GangPlugin.getInstance(), () -> Bukkit.getPluginManager().callEvent(gangPlayerLevelUpEvent));
+                } else {
+                    Bukkit.getPluginManager().callEvent(gangPlayerLevelUpEvent);
+                }
+                if(!gangPlayerLevelUpEvent.isCancelled()) {
+                    getPlayerData().setLevel(getLevel() + level);
+                }
             }
 
             @Override
             public void addExp(double exp) {
-                if(!Bukkit.isPrimaryThread()) {
+                if (!Bukkit.isPrimaryThread()) {
                     Bukkit.getScheduler().runTask(GangPlugin.getInstance(), () -> Bukkit.getPluginManager().callEvent(new GangPlayerExpChangeEvent(this, getExp(), getExp() + exp)));
                 } else {
                     Bukkit.getPluginManager().callEvent(new GangPlayerExpChangeEvent(this, getExp(), getExp() + exp));
@@ -82,13 +104,13 @@ public class Gang {
 
             @Override
             public double getGoalExp() {
-                if(getGang() == null) {
+                if (getGang() == null) {
                     return 0;
                 }
-                if(getGang() == GangType.UNKNOWN) {
+                if (getGang() == GangType.UNKNOWN) {
                     return 0;
                 }
-                if(getGang() == GangType.MINER_GANG) {
+                if (getGang() == GangType.MINER_GANG) {
                     return Gang.getMineGang().getGoalExp(getLevel());
                 }
                 return 0;
@@ -96,8 +118,8 @@ public class Gang {
 
             @Override
             public void setGang(GangType type) {
-                if(hasGang())return;
-                if(!Bukkit.isPrimaryThread()) {
+                if (hasGang()) return;
+                if (!Bukkit.isPrimaryThread()) {
                     Bukkit.getScheduler().runTask(GangPlugin.getInstance(), () -> Bukkit.getPluginManager().callEvent(new GangPlayerJoinEvent(this, getGang(), type)));
                 } else {
                     Bukkit.getPluginManager().callEvent(new GangPlayerJoinEvent(this, getGang(), type));
@@ -154,11 +176,12 @@ public class Gang {
 
             @Override
             public void sendMessage(String message) {
-                if(player.isOnline()) {
+                if (player.isOnline()) {
                     player.getPlayer().sendMessage(ChatUtil.colorize(message));
                 }
             }
         };
+        return gangPlayer;
     }
 
     public static LeaderBoard getLeaderBoard(GangType gangType) {
@@ -167,5 +190,9 @@ public class Gang {
 
     public static MineGang getMineGang() {
         return new MineGang();
+    }
+
+    public static MoneyGang getMoneyGang() {
+        return new MoneyGang();
     }
 }

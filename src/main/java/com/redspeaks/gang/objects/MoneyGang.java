@@ -1,16 +1,13 @@
 package com.redspeaks.gang.objects;
 
-import com.redspeaks.gang.api.gangs.GangPlayer;
-import com.redspeaks.gang.api.gangs.GangType;
-import com.redspeaks.gang.api.gangs.LeaderBoard;
-import com.redspeaks.gang.api.gangs.GangBase;
-import com.redspeaks.gang.api.gangs.Storage;
+import com.redspeaks.gang.api.gangs.*;
 import org.bukkit.Bukkit;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class MineGang implements GangBase {
+public class MoneyGang implements GangBase {
 
     @Override
     public LeaderBoard getLeaderBoard() {
@@ -29,7 +26,7 @@ public class MineGang implements GangBase {
 
     @Override
     public void addMember(GangPlayer gangPlayer) {
-        gangPlayer.setGang(GangType.MINER_GANG);
+        gangPlayer.setGang(GangType.MONEY_GANG);
     }
 
     @Override

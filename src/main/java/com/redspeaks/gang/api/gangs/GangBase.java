@@ -15,4 +15,6 @@ public interface GangBase {
     void kickMember(GangPlayer gangPlayer);
 
     boolean isMember(GangPlayer gangPlayer);
+
+    boolean isLevelExist(int level);
 }

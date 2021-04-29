@@ -27,7 +27,7 @@ public abstract class AbstractCommand implements CommandExecutor {
                 sendMessage(sender, "&7You must be a player to do that");
                 return true;
             }
-            execute((Player) sender, args);
+            execute((Player)sender, args);
             return true;
         }
         execute(sender, args);

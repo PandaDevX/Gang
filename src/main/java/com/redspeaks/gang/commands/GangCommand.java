@@ -13,6 +13,5 @@ public class GangCommand extends AbstractCommand {
     public void execute(Player player, String[] args) {
         GangPlayer gangPlayer = Gang.getPlayer(player);
 
-
     }
 }

@@ -26,7 +26,7 @@ public class GangPlayerExpChangeEvent extends Event {
         return HANDLERS;
     }
 
-    public GangPlayer gangPlayer() {
+    public GangPlayer getPlayer() {
         return player;
     }
 
