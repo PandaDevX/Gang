@@ -7,12 +7,44 @@ import com.redspeaks.gang.api.events.GangPlayerExpChangeEvent;
 import com.redspeaks.gang.api.events.GangPlayerJoinEvent;
 import com.redspeaks.gang.api.events.GangPlayerLevelUpEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 public class Gang {
+
+    public static void rewardPlayer(GangPlayer player) {
+        List<Integer> list = player.getGang().getRewards();
+        Random random = new Random();
+        Integer prize = list.get(random.nextInt(list.size()));
+        player.getGang().reward(player, prize);
+        random = null;
+        list = null;
+        return;
+    }
+
+    public static double getWorth(Material material) {
+        if(!material.isBlock()) {
+            return 0;
+        }
+        for(String blockSection : GangPlugin.getInstance().getConfig().getConfigurationSection("Options.Miner Gang.Blocks").getKeys(false)) {
+            if(material.name().equals(blockSection)) {
+                String path = "Options.Miner Gang.Blocks." + blockSection;
+                Random r = new Random();
+                int low = ((int)(Double.parseDouble(GangPlugin.getInstance().getConfig().getString(path).split("-")[0])/2));
+                int high = ((int) (Double.parseDouble(GangPlugin.getInstance().getConfig().getString(path).split("-")[1])));
+                int result = r.nextInt(high-low) + low;
+                r = null;
+                return result;
+            }
+        }
+        return 0;
+    }
 
     public static GangPlayer getPlayer(OfflinePlayer player) {
         if(player == null) {
@@ -68,27 +100,15 @@ public class Gang {
             }
 
             @Override
-            public void addLevel(int level) {
-                GangBase gangBase = null;
-                switch (getGang()) {
-                    case MONEY_GANG:
-                        gangBase = getMoneyGang();
-                        break;
-                    case MINER_GANG:
-                        gangBase = getMineGang();
-                        break;
-                    case TOKEN_GANG:
-                        gangBase = null;
-                        break;
-                }
-                GangPlayerLevelUpEvent gangPlayerLevelUpEvent = new GangPlayerLevelUpEvent(this, getLevel(), level, gangBase);
+            public void levelUp() {
+                GangPlayerLevelUpEvent gangPlayerLevelUpEvent = new GangPlayerLevelUpEvent(this, getLevel(), getLevel() + 1);
                 if (!Bukkit.isPrimaryThread()) {
                     Bukkit.getScheduler().runTask(GangPlugin.getInstance(), () -> Bukkit.getPluginManager().callEvent(gangPlayerLevelUpEvent));
                 } else {
                     Bukkit.getPluginManager().callEvent(gangPlayerLevelUpEvent);
                 }
                 if(!gangPlayerLevelUpEvent.isCancelled()) {
-                    getPlayerData().setLevel(getLevel() + level);
+                    getPlayerData().setLevel(getLevel() + 1);
                 }
             }
 
@@ -103,17 +123,13 @@ public class Gang {
             }
 
             @Override
+            public void setExp(double exp) {
+                getPlayerData().setExp(exp);
+            }
+
+            @Override
             public double getGoalExp() {
-                if (getGang() == null) {
-                    return 0;
-                }
-                if (getGang() == GangType.UNKNOWN) {
-                    return 0;
-                }
-                if (getGang() == GangType.MINER_GANG) {
-                    return Gang.getMineGang().getGoalExp(getLevel());
-                }
-                return 0;
+                return ((getGang().getConfigOptionDouble("goal") * (getGang().getConfigOptionDouble("increment")/100D)) * getLevel()) + getGang().getConfigOptionDouble("goal");
             }
 
             @Override
@@ -188,11 +204,4 @@ public class Gang {
         return null;
     }
 
-    public static MineGang getMineGang() {
-        return new MineGang();
-    }
-
-    public static MoneyGang getMoneyGang() {
-        return new MoneyGang();
-    }
 }

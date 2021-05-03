@@ -23,9 +23,11 @@ public interface GangPlayer {
 
     double getExp();
 
-    void addLevel(int level);
+    void levelUp();
 
-    void addExp(double Exp);
+    void addExp(double exp);
+
+    void setExp(double exp);
 
     double getGoalExp();
 

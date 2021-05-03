@@ -2,3 +2,5 @@ name: Gang
 version: ${project.version}
 main: com.redspeaks.gang.GangPlugin
 api-version: 1.16
+commands:
+   gang:

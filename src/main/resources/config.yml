@@ -1,0 +1,97 @@
+GUI:
+  Miner Gang:
+      name: '&bMiner Gang'
+      type: 'diamond_pickaxe'
+      desc:
+        - '&7This gang helps you with mining'
+        - '&7Increased chances getting drops'
+        - '&7Tiny improvements with fortune'
+        - '&7Even changes your luck a bit'
+        - '&b#MinerGang'
+        - '&bExperience: {exp} / {goal}'
+        - '&bLevel: {level} / {max}'
+
+  Token Gang:
+        name: '&bToken Gang'
+        type: 'pink_dye'
+        desc:
+          - '&7This gang helps you with tokens'
+          - '&7Increased chances getting tokens'
+          - '&7Tiny improvements getting tokens'
+          - '&7Even changes your earnings'
+          - '&d#TokenGang'
+          - '&bExperience: {exp} / {goal}'
+          - '&bLevel: {level} / {max}'
+
+  Money Gang:
+        name: '&aMoney Gang'
+        type: 'paper'
+        desc:
+          - '&7This gang helps you with money'
+          - '&7Increased chances through ranks with increased'
+          - '&7profit tiny increase to multipliers'
+          - '&7and changes all of capitalism'
+          - '&a#MoneyGang'
+          - '&bExperience: {exp} / {goal}'
+          - '&bLevel: {level} / {max}'
+
+Options:
+   Money Gang:
+      # bonus money ( 5% of the money earned )
+      profit: 5
+      # Formula : player level x ( 20% of money earned )
+      # the exp given to the players are still random
+      exp: 20
+      # level goal 40 % 1024 * player level + 1024
+      goal: 1024
+      # the 40%
+      increment: 40
+      # player level must be divisible by 20
+      reward-multiplier: 20
+      # random rewards
+      rewards:
+         - 1500
+         - 150
+         - 10
+         - 1
+
+   Token Gang:
+      # bonus token ( 5% of the token earned )
+      profit: 5
+      # Formula : player level x ( 20% of token earned )
+      # the exp given to the players are still random
+      exp: 20
+      # level goal 40 % 1024 * player level + 1024
+      goal: 1024
+      # the 40%
+      increment: 40
+      # player level must be divisible by 20
+      reward-multiplier: 20
+      # random rewards
+      rewards:
+        - 1500
+        - 150
+        - 10
+        - 1
+
+   Miner Gang:
+      goal: 1024
+      increment: 40
+      reward-multiplier:
+      # rev enchant id
+      rewards:
+         - 1
+         - 2
+         - 3
+         - 4
+      Blocks:
+         # Decimals are allowed
+         COAL_ORE: '20-40'
+         LAPIS_ORE: '40-60'
+         IRON_ORE: '60-100'
+         REDSTONE_ORE: '100-120'
+         GOLD_ORE: '120-150'
+         NETHER_GOLD_ORE: '130-160'
+         NETHER_QUARTZ_ORE: '130-160'
+         DIAMOND_ORE: '140-170.12'
+         EMERALD_ORE: '150-180.5'

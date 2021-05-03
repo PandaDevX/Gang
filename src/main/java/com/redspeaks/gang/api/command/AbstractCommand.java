@@ -34,6 +34,10 @@ public abstract class AbstractCommand implements CommandExecutor {
         return false;
     }
 
+    public CommandInfo getInfo() {
+        return info;
+    }
+
     public void execute(CommandSender sender, String[] args) {}
     public void execute(Player player, String[] args) {}
 

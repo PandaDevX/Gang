@@ -1,5 +1,10 @@
 package com.redspeaks.gang.api.gangs;
 
+import com.redspeaks.gang.GangPlugin;
+import me.revils.enchants.api.PublicRevAPI;
+
+import java.util.List;
+
 public enum GangType {
 
     MINER_GANG("miner", "Miner Gang"),
@@ -20,6 +25,24 @@ public enum GangType {
 
     public String getName() {
         return this.name;
+    }
+
+    public double getConfigOptionDouble(String path) {
+        return GangPlugin.getInstance().getConfig().getDouble("Options." + name + "." + path);
+    }
+
+    public List<Integer> getRewards() {
+        return GangPlugin.getInstance().getConfig().getIntegerList("Options." + name + ".rewards");
+    }
+
+    public void reward(GangPlayer player, Integer number) {
+        if(this.text.equals("money")) {
+            GangPlugin.getInstance().getEconomy().depositPlayer(player.asOfflinePlayer(), number);
+        } else if(this.text.equals("token")) {
+            PublicRevAPI.addTokens(player.asPlayer(), (long)number);
+        } else {
+            // TODO miner
+        }
     }
 
     public static GangType getGang(String prefix) {

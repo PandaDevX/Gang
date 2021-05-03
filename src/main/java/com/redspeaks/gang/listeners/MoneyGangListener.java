@@ -1,15 +1,19 @@
 package com.redspeaks.gang.listeners;
 
+import com.redspeaks.gang.GangPlugin;
+import com.redspeaks.gang.api.events.GangPlayerExpChangeEvent;
 import com.redspeaks.gang.api.events.GangPlayerLevelUpEvent;
 import com.redspeaks.gang.api.gangs.GangPlayer;
 import com.redspeaks.gang.api.gangs.GangType;
 import com.redspeaks.gang.objects.Gang;
+import me.revils.enchants.api.PublicRevAPI;
 import net.ess3.api.events.UserBalanceUpdateEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import java.math.BigDecimal;
+import java.util.Random;
 
 public class MoneyGangListener implements Listener {
 
@@ -25,20 +29,38 @@ public class MoneyGangListener implements Listener {
         int level = gangPlayer.getLevel();
 
         // player gain exp (level * 20% of earned money)
-        double gain = level * (change.doubleValue() * .20D);
+        double gain = level * (change.doubleValue() * (GangType.MONEY_GANG.getConfigOptionDouble("exp") / 100D));
+
+        Random r = new Random();
+        int low = ((int)(gain/2));
+        int high = (int)gain;
+        int result = r.nextInt(high-low) + low;
+        r = null;
 
         // total exp gained
-        double exp = gangPlayer.getExp() + gain;
+        gangPlayer.addExp(result);
 
-        // level up
-        if(exp >= Gang.getMoneyGang().getGoalExp(level)) {
-            gangPlayer.addLevel(1);
-        }
+        // profit
+        double profit = (change.doubleValue() * (GangType.MONEY_GANG.getConfigOptionDouble("profit")/100D));
+        GangPlugin.getInstance().getEconomy().depositPlayer(gangPlayer.asOfflinePlayer(), profit);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onLevelUp(GangPlayerLevelUpEvent e) {
-        if(e.getGangBase().isLevelExist(e.getTo())) return;
-        e.setCancelled(true);
+    public void onGainExp(GangPlayerExpChangeEvent e) {
+        while(e.getPlayer().getExp() >= e.getPlayer().getGoalExp()) {
+            e.getPlayer().setExp(e.getPlayer().getGoalExp() - e.getPlayer().getExp());
+            e.getPlayer().levelUp();
+        }
     }
+
+    @EventHandler
+    public void onLevelUp(GangPlayerLevelUpEvent e) {
+        GangType gangType = e.getPlayer().getGang();
+        double multiplier = gangType.getConfigOptionDouble("reward-multiplier");
+        if((e.getTo() % multiplier) == 0) {
+            Gang.rewardPlayer(e.getPlayer());
+            return;
+        }
+    }
+
 }
