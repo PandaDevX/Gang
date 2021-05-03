@@ -1,3 +1,11 @@
+MySQL:
+  host: 'localhost'
+  database: 'mydb'
+  port: '3306'
+  user: 'root'
+  pass: ''
+
+
 GUI:
   Miner Gang:
       name: '&bMiner Gang'
