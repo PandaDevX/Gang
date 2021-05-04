@@ -34,7 +34,11 @@ public class MoneyGangListener implements Listener {
         Random r = new Random();
         int low = ((int)(gain/2));
         int high = (int)gain;
-        int result = r.nextInt(high-low) + low;
+        int test = (high-low) + low;
+        int result = 0;
+        if(test >0 ) {
+            result = r.nextInt(test);
+        }
         r = null;
 
         // total exp gained

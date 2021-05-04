@@ -2,6 +2,8 @@ name: Gang
 version: ${project.version}
 main: com.redspeaks.gang.GangPlugin
 api-version: 1.16
-dependency: [vault,Revenchants]
+depend: [Vault,RevEnchants]
 commands:
    gang:
+    description: main command
+    aliases: [gangs]

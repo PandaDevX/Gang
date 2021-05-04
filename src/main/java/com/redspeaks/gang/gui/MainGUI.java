@@ -75,7 +75,7 @@ public class MainGUI implements Listener {
             GangPlayer gangPlayer = Gang.getPlayer(player);
             gangPlayer.setGang(GangType.MINER_GANG);
             player.closeInventory();
-            gangPlayer.sendMessage("&7Successfully joined &b" + gangPlayer.getGang().getName());
+            gangPlayer.sendMessage("&7Successfully joined &bMiner Gang");
             return;
         }
         if(ChatUtil.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()).equals("Token Gang")) {
@@ -84,7 +84,7 @@ public class MainGUI implements Listener {
             GangPlayer gangPlayer = Gang.getPlayer(player);
             gangPlayer.setGang(GangType.TOKEN_GANG);
             player.closeInventory();
-            gangPlayer.sendMessage("&7Successfully joined &d" + gangPlayer.getGang().getName());
+            gangPlayer.sendMessage("&7Successfully joined &dToken Gang");
             return;
         }
         if(ChatUtil.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()).equals("Money Gang")) {
@@ -93,7 +93,7 @@ public class MainGUI implements Listener {
             GangPlayer gangPlayer = Gang.getPlayer(player);
             gangPlayer.setGang(GangType.MONEY_GANG);
             player.closeInventory();
-            gangPlayer.sendMessage("&7Successfully joined &a" + gangPlayer.getGang().getName());
+            gangPlayer.sendMessage("&7Successfully joined &aMoney Gang");
             return;
         }
         e.setCancelled(true);

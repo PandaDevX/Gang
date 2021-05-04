@@ -46,12 +46,6 @@ public class Gang {
     }
 
     public static GangPlayer getPlayer(OfflinePlayer player) {
-        if(player == null) {
-            return null;
-        }
-        if(!player.hasPlayedBefore()) {
-            return null;
-        }
         final GangPlayer gangPlayer = new GangPlayer() {
             @Override
             public boolean equals(Object object) {
@@ -70,6 +64,9 @@ public class Gang {
 
             @Override
             public boolean hasGang() {
+                if(!Storage.playerDatabase.containsKey(player.getUniqueId().toString())) {
+                    return false;
+                }
                 if(getPlayerData().gang() == null) {
                     return false;
                 }
@@ -139,7 +136,6 @@ public class Gang {
 
             @Override
             public void setGang(GangType type) {
-                if (hasGang()) return;
                 if (!Bukkit.isPrimaryThread()) {
                     Bukkit.getScheduler().runTask(GangPlugin.getInstance(), () -> Bukkit.getPluginManager().callEvent(new GangPlayerJoinEvent(this, getGang(), type)));
                 } else {
@@ -147,6 +143,11 @@ public class Gang {
                 }
                 getPlayerData().setGang(type);
                 getPlayerData().setLevel(1);
+            }
+
+            @Override
+            public void sendTitle(String message) {
+                player.getPlayer().sendTitle(ChatUtil.colorize(message), "", 10, 70, 20);
             }
 
             @Override
@@ -161,43 +162,52 @@ public class Gang {
 
                     @Override
                     public int level() {
-                        if(readData() != null) {
-                            return Integer.parseInt(readData()[0]);
+                        if(readData() == null) {
+                            return 1;
                         }
-                        return 0;
+                        try{
+                            return Integer.parseInt(readData()[0]);
+                        }catch (NumberFormatException e) {
+                            return 1;
+                        }
+
                     }
 
                     @Override
                     public double exp() {
-                        if(readData() != null) {
-                            return Integer.parseInt(readData()[1]);
+                        if(readData() == null) {
+                            return 0;
                         }
-                        return 0;
+                        try {
+                            return Double.parseDouble(readData()[1]);
+                        }catch (NumberFormatException e) {
+                            return 0;
+                        }
                     }
 
                     @Override
                     public GangType gang() {
-                        if(readData() != null) {
-                            return GangType.getGang(readData()[2]);
+                        if(readData() == null) {
+                            return GangType.UNKNOWN;
                         }
-                        return GangType.UNKNOWN;
+                        return GangType.getGang(readData()[2]);
                     }
 
                     @Override
                     public void setExp(double exp) {
-                        String buildData = level() + "::" + exp + "::" + gang();
+                        String buildData = level() + "::" + exp + "::" + gang().getPrefix();
                         Storage.playerDatabase.put(player.getUniqueId().toString(), buildData);
                     }
 
                     @Override
                     public void setLevel(int level) {
-                        String buildData = level + "::" + exp() + "::" + gang();
+                        String buildData = level + "::" + exp() + "::" + gang().getPrefix();
                         Storage.playerDatabase.put(player.getUniqueId().toString(), buildData);
                     }
 
                     @Override
                     public void setGang(GangType gang) {
-                        String buildData = level() + "::" + exp() + "::" + gang.getPrefix();
+                        String buildData = 1 + "::" + 0D + "::" + gang.getPrefix();
                         Storage.playerDatabase.put(player.getUniqueId().toString(), buildData);
                     }
                 };

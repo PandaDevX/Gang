@@ -13,6 +13,7 @@ import java.util.Random;
 public class TokenListener implements Listener {
 
 
+    @EventHandler
     public void onReceiveTokens(RevPlayerReceiveTokensEvent e) {
         GangPlayer gangPlayer = Gang.getPlayer(e.getPlayer());
         if(!gangPlayer.hasGang()) return;
@@ -27,7 +28,11 @@ public class TokenListener implements Listener {
         Random r = new Random();
         int low = ((int)(gain/2));
         int high = (int)gain;
-        int result = r.nextInt(high-low) + low;
+        int test = (high-low) + low;
+        int result = 0;
+        if(test >0 ) {
+            result = r.nextInt(test);
+        }
         r = null;
 
         gangPlayer.addExp(result);

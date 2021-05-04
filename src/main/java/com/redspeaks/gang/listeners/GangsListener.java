@@ -1,5 +1,6 @@
 package com.redspeaks.gang.listeners;
 
+import com.redspeaks.gang.api.chat.ChatUtil;
 import com.redspeaks.gang.api.events.GangPlayerExpChangeEvent;
 import com.redspeaks.gang.api.events.GangPlayerLevelUpEvent;
 import com.redspeaks.gang.api.gangs.GangType;
@@ -20,17 +21,26 @@ public class GangsListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onGainExp(GangPlayerExpChangeEvent e) {
         while(e.getPlayer().getExp() >= e.getPlayer().getGoalExp()) {
-            e.getPlayer().setExp(e.getPlayer().getGoalExp() - e.getPlayer().getExp());
+            final double newExp = e.getPlayer().getGoalExp() - e.getPlayer().getExp();
+            if(newExp < 0) {
+                e.getPlayer().setExp(0);
+            } else {
+                e.getPlayer().setExp(newExp);
+            }
+
             e.getPlayer().levelUp();
         }
-        e.getPlayer().asPlayer().playSound(e.getPlayer().asPlayer().getLocation(), Sound.ENTITY_BAT_TAKEOFF, 2.0f, 2.0f);
+        e.getPlayer().asPlayer().playSound(e.getPlayer().asPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 2.0f, 2.0f);
         e.getPlayer().asPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(
-                TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&7You gained &c" + (e.getTo() - e.getFrom()) + " &7exp"))
+                TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&6&l&nLevel:&2 " + e.getPlayer().getLevel() + " &7Exp: &c" + (ChatUtil.formatNumber(e.getPlayer().getExp())) + " &7/ &c" + ChatUtil.formatNumber(e.getPlayer().getGoalExp())))
         ));
     }
 
     @EventHandler
     public void onLevelUp(GangPlayerLevelUpEvent e) {
+        e.getPlayer().asPlayer().playSound(e.getPlayer().asPlayer().getLocation(), Sound.ENTITY_GHAST_SHOOT, 2.0f, 2.0f);
+        e.getPlayer().sendTitle("&6&lYou leveled up to &2" + e.getTo());
+
         GangType gangType = e.getPlayer().getGang();
         double multiplier = gangType.getConfigOptionDouble("reward-multiplier");
         if((e.getTo() % multiplier) == 0) {

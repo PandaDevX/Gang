@@ -38,4 +38,6 @@ public interface GangPlayer {
     boolean isOnline();
 
     void sendMessage(String message);
+
+    void sendTitle(String message);
 }

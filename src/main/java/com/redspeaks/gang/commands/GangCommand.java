@@ -13,10 +13,10 @@ public class GangCommand extends AbstractCommand {
     @Override
     public void execute(Player player, String[] args) {
         GangPlayer gangPlayer = Gang.getPlayer(player);
-        if(!gangPlayer.hasGang()) {
-            MainGUI mainGUI = new MainGUI();
-            mainGUI.openInventory(gangPlayer.asPlayer());
-            mainGUI = null;
-        }
+        MainGUI mainGUI = new MainGUI();
+        mainGUI.openInventory(gangPlayer.asPlayer());
+        mainGUI = null;
+        return;
+
     }
 }

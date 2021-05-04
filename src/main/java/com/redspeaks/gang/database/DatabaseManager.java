@@ -15,15 +15,16 @@ public class DatabaseManager {
     private Connection connection = null;
     private Database database = GangPlugin.getInstance().getDatabase();
 
-    public void setup() {
+    public Connection getConnection() {
         if(connection == null) {
             try {
                 connection = DriverManager.getConnection("jdbc:mysql://" + database.host() + ":" + database.port() + "/" + database.database() + "?useSSL=false"
-                , database.user(), database.pass());
+                        , database.user(), database.pass());
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
         }
+        return connection;
     }
 
     public void close() {
@@ -61,6 +62,7 @@ public class DatabaseManager {
         try(PreparedStatement ps = preparedStatement("INSERT INTO gangs (uuid,level,exp,gang) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE level=?, exp=?, gang=?")) {
             for (String uuid : data.keySet()) {
                 String[] readData = data.get(uuid).split("::");
+                System.out.println("saving " + readData[0] + readData[1] + readData[2]);
                 ps.setString(1, uuid);
                 ps.setInt(2, Integer.parseInt(readData[0]));
                 ps.setDouble(3, Double.parseDouble(readData[1]));
@@ -81,9 +83,7 @@ public class DatabaseManager {
             try {
                 while (resultSet.next()) {
                     String data[] = {resultSet.getString("uuid"), resultSet.getInt("level") + "", resultSet.getDouble("exp") + "", resultSet.getString("gang")};
-                    Storage.playerDatabase.put(data[0], data[1]);
-                    Storage.playerDatabase.put(data[0], data[2]);
-                    Storage.playerDatabase.put(data[0], data[3]);
+                    Storage.playerDatabase.put(data[0], data[1] + "::" + data[2] + "::" + data[3]);
                     data = null;
                 }
             }catch (SQLException e) {
@@ -93,6 +93,6 @@ public class DatabaseManager {
     }
 
     public PreparedStatement preparedStatement(String statement) throws SQLException {
-        return connection.prepareStatement(statement);
+        return getConnection().prepareStatement(statement);
     }
 }

@@ -22,9 +22,15 @@ public class GUIOptions {
     public static List<String> getDescription(GangType gangType, GangPlayer player) {
         List<String> list = GangPlugin.getInstance().getConfig().getStringList("GUI." + gangType.getName() + ".desc");
         for(int i = 0; i < list.size(); i++) {
-             list.set(i, list.get(i).replace("{exp}", String.format("%.2f", player.getExp())));
-             list.set(i, list.get(i).replace("{goal}", String.format("%.2f", player.getGoalExp())));
-             list.set(i, list.get(i).replace("{level}", player.getLevel() + ""));
+             if(player.hasGang()) {
+                 list.set(i, list.get(i).replace("{exp}", String.format("%.2f", player.getExp())));
+                 list.set(i, list.get(i).replace("{goal}", String.format("%.2f", player.getGoalExp())));
+                 list.set(i, list.get(i).replace("{level}", player.getLevel() + ""));
+             } else {
+                 list.set(i, list.get(i).replace("{exp}", 0 + ""));
+                 list.set(i, list.get(i).replace("{goal}", 0 + ""));
+                 list.set(i, list.get(i).replace("{level}", 0 + ""));
+             }
         }
         return list;
     }
