@@ -4,6 +4,7 @@ import com.redspeaks.gang.api.command.AbstractCommand;
 import com.redspeaks.gang.api.gangs.Storage;
 import com.redspeaks.gang.commands.GangCommand;
 import com.redspeaks.gang.database.DatabaseManager;
+import com.redspeaks.gang.listeners.GangsListener;
 import com.redspeaks.gang.listeners.MiningListener;
 import com.redspeaks.gang.listeners.MoneyGangListener;
 import com.redspeaks.gang.listeners.TokenListener;
@@ -37,6 +38,7 @@ public final class GangPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MiningListener(), this);
         getServer().getPluginManager().registerEvents(new MoneyGangListener(), this);
         getServer().getPluginManager().registerEvents(new TokenListener(), this);
+        getServer().getPluginManager().registerEvents(new GangsListener(), this);
 
         DatabaseManager databaseManager = getDatabaseManager();
         databaseManager.setup();
@@ -47,7 +49,9 @@ public final class GangPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getDatabaseManager().saveData(Storage.playerDatabase);
+        if(!Storage.playerDatabase.isEmpty()) {
+            getDatabaseManager().saveData(Storage.playerDatabase);
+        }
 
         getDatabaseManager().close();
     }

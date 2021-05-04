@@ -45,22 +45,4 @@ public class MoneyGangListener implements Listener {
         GangPlugin.getInstance().getEconomy().depositPlayer(gangPlayer.asOfflinePlayer(), profit);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onGainExp(GangPlayerExpChangeEvent e) {
-        while(e.getPlayer().getExp() >= e.getPlayer().getGoalExp()) {
-            e.getPlayer().setExp(e.getPlayer().getGoalExp() - e.getPlayer().getExp());
-            e.getPlayer().levelUp();
-        }
-    }
-
-    @EventHandler
-    public void onLevelUp(GangPlayerLevelUpEvent e) {
-        GangType gangType = e.getPlayer().getGang();
-        double multiplier = gangType.getConfigOptionDouble("reward-multiplier");
-        if((e.getTo() % multiplier) == 0) {
-            Gang.rewardPlayer(e.getPlayer());
-            return;
-        }
-    }
-
 }
