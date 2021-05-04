@@ -4,6 +4,7 @@ import com.redspeaks.gang.GangPlugin;
 import me.revils.enchants.api.PublicRevAPI;
 
 import java.util.List;
+import java.util.Random;
 
 public enum GangType {
 
@@ -41,7 +42,9 @@ public enum GangType {
         } else if(this.text.equals("token")) {
             PublicRevAPI.addTokens(player.asPlayer(), (long)number);
         } else {
-            // TODO miner
+            Random random = new Random();
+            PublicRevAPI.setREnchantLevel(player.asPlayer(), number, random.nextInt(100));
+            random = null;
         }
     }
 

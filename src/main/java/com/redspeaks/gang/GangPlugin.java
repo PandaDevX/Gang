@@ -23,6 +23,7 @@ public final class GangPlugin extends JavaPlugin {
         instance = this;
         // Plugin startup logic
 
+        saveDefaultConfig();
 
         if(!setupEconomy()) {
             getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
@@ -37,9 +38,10 @@ public final class GangPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MoneyGangListener(), this);
         getServer().getPluginManager().registerEvents(new TokenListener(), this);
 
-        getDatabaseManager().setup();
-        getDatabaseManager().createTableForGangs();
-        getDatabaseManager().loadData();
+        DatabaseManager databaseManager = getDatabaseManager();
+        databaseManager.setup();
+        databaseManager.createTableForGangs();
+        databaseManager.loadData();
 
     }
 

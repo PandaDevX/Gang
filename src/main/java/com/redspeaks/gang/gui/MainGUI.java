@@ -69,7 +69,7 @@ public class MainGUI implements Listener {
         if(e.getCurrentItem() == null) return;
         if(!e.getCurrentItem().hasItemMeta()) return;
         if(!e.getCurrentItem().getItemMeta().hasDisplayName()) return;
-        if(e.getSlot() == 19) {
+        if(ChatUtil.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()).equals("Miner Gang")) {
             e.setCancelled(true);
             Player player = (Player) e.getWhoClicked();
             GangPlayer gangPlayer = Gang.getPlayer(player);
@@ -78,7 +78,7 @@ public class MainGUI implements Listener {
             gangPlayer.sendMessage("&7Successfully joined &b" + gangPlayer.getGang().getName());
             return;
         }
-        if(e.getSlot() == 22) {
+        if(ChatUtil.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()).equals("Token Gang")) {
             e.setCancelled(true);
             Player player = (Player) e.getWhoClicked();
             GangPlayer gangPlayer = Gang.getPlayer(player);
@@ -87,7 +87,7 @@ public class MainGUI implements Listener {
             gangPlayer.sendMessage("&7Successfully joined &d" + gangPlayer.getGang().getName());
             return;
         }
-        if(e.getSlot() == 25) {
+        if(ChatUtil.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()).equals("Money Gang")) {
             e.setCancelled(true);
             Player player = (Player) e.getWhoClicked();
             GangPlayer gangPlayer = Gang.getPlayer(player);

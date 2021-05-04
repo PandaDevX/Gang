@@ -12,7 +12,7 @@ import java.util.Random;
 
 public class TokenListener implements Listener {
 
-    @EventHandler
+
     public void onReceiveTokens(RevPlayerReceiveTokensEvent e) {
         GangPlayer gangPlayer = Gang.getPlayer(e.getPlayer());
         if(!gangPlayer.hasGang()) return;

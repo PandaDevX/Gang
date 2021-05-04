@@ -38,7 +38,7 @@ public class DatabaseManager {
 
     public void createTableForGangs() {
         try(PreparedStatement ps = preparedStatement("CREATE TABLE IF NOT EXISTS gangs " +
-                "(player VARCHAR(100), level INT(100), exp DOUBLE PRECISION, gang VARCHAR(100), PRIMARY KEY(uuid))")) {
+                "(uuid VARCHAR(100), level INT(100), exp DOUBLE PRECISION, gang VARCHAR(100), PRIMARY KEY(uuid))")) {
             ps.executeUpdate();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -76,6 +76,7 @@ public class DatabaseManager {
     }
 
     public void loadData() {
+        createTableForGangs();
         loadManager(resultSet -> {
             try {
                 while (resultSet.next()) {

@@ -71,7 +71,13 @@ public class Gang {
 
             @Override
             public boolean hasGang() {
-                return !getPlayerData().gang().getPrefix().equals("empty");
+                if(getPlayerData().gang() == null) {
+                    return false;
+                }
+                if(getPlayerData().gang() == GangType.UNKNOWN) {
+                    return false;
+                }
+                return true;
             }
 
             @Override
@@ -141,28 +147,41 @@ public class Gang {
                     Bukkit.getPluginManager().callEvent(new GangPlayerJoinEvent(this, getGang(), type));
                 }
                 getPlayerData().setGang(type);
+                getPlayerData().setLevel(1);
             }
 
             @Override
             public PlayerData getPlayerData() {
                 return new PlayerData() {
                     private String[] readData() {
-                        return Storage.playerDatabase.get(player.getUniqueId().toString()).split("::");
+                        if(Storage.playerDatabase.containsKey(player.getUniqueId().toString())) {
+                            return Storage.playerDatabase.get(player.getUniqueId().toString()).split("::");
+                        }
+                        return null;
                     }
 
                     @Override
                     public int level() {
-                        return Integer.parseInt(readData()[0]);
+                        if(readData() != null) {
+                            return Integer.parseInt(readData()[0]);
+                        }
+                        return 0;
                     }
 
                     @Override
                     public double exp() {
-                        return Integer.parseInt(readData()[1]);
+                        if(readData() != null) {
+                            return Integer.parseInt(readData()[1]);
+                        }
+                        return 0;
                     }
 
                     @Override
                     public GangType gang() {
-                        return GangType.getGang(readData()[2]);
+                        if(readData() != null) {
+                            return GangType.getGang(readData()[2]);
+                        }
+                        return GangType.UNKNOWN;
                     }
 
                     @Override

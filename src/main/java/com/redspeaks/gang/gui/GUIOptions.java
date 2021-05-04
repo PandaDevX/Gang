@@ -24,6 +24,7 @@ public class GUIOptions {
         for(int i = 0; i < list.size(); i++) {
              list.set(i, list.get(i).replace("{exp}", String.format("%.2f", player.getExp())));
              list.set(i, list.get(i).replace("{goal}", String.format("%.2f", player.getGoalExp())));
+             list.set(i, list.get(i).replace("{level}", player.getLevel() + ""));
         }
         return list;
     }
