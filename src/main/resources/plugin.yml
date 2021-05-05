@@ -7,3 +7,6 @@ commands:
    gang:
     description: main command
     aliases: [gangs]
+   gangman:
+    description: gang manager command
+    aliases: [gangmanager]

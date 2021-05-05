@@ -22,6 +22,7 @@ public class MainGUI implements Listener {
         inventory = Bukkit.createInventory(null, 36, ChatUtil.colorize("&eGang Menu"));
         ItemStack placeholder = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
         ItemMeta placeholderMeta = placeholder.getItemMeta();
+        placeholderMeta.setDisplayName(" ");
         placeholder.setItemMeta(placeholderMeta);
 
 

@@ -2,6 +2,7 @@ package com.redspeaks.gang.api.gangs;
 
 import com.redspeaks.gang.GangPlugin;
 import me.revils.enchants.api.PublicRevAPI;
+import org.bukkit.scoreboard.Team;
 
 import java.util.List;
 import java.util.Random;
@@ -36,6 +37,22 @@ public enum GangType {
         return GangPlugin.getInstance().getConfig().getIntegerList("Options." + name + ".rewards");
     }
 
+    public Team getTeam() {
+        switch (text) {
+            case "miner":
+                return GangPlugin.getInstance().gangScoreboard().getTeamMiner();
+            case "token":
+                return GangPlugin.getInstance().gangScoreboard().getTeamToken();
+            case "money":
+                return GangPlugin.getInstance().gangScoreboard().getTeamMoney();
+        }
+        return null;
+    }
+
+    public String[] getNameTagPrefix() {
+        return GangPlugin.getInstance().getConfig().getString("Options." + name + ".prefix").split(" ");
+    }
+
     public void reward(GangPlayer player, Integer number) {
         if(this.text.equals("money")) {
             GangPlugin.getInstance().getEconomy().depositPlayer(player.asOfflinePlayer(), number);
@@ -50,7 +67,7 @@ public enum GangType {
 
     public static GangType getGang(String prefix) {
         for(GangType gangType : GangType.values()) {
-            if(gangType.getPrefix().equalsIgnoreCase(prefix)) {
+            if(gangType.getPrefix().equalsIgnoreCase(prefix) || gangType.getName().equalsIgnoreCase(prefix)) {
                 return gangType;
             }
         }

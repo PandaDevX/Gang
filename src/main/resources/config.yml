@@ -45,6 +45,8 @@ GUI:
 
 Options:
    Money Gang:
+      # nametag prefix
+      prefix: '&aMoney &f'
       # bonus money ( 5% of the money earned )
       profit: 5
       # Formula : player level x ( 20% of money earned )
@@ -93,7 +95,6 @@ Options:
          - 3
          - 4
       Blocks:
-         # Decimals are allowed
          COAL_ORE: '20-40'
          LAPIS_ORE: '40-60'
          IRON_ORE: '60-100'
@@ -101,6 +102,6 @@ Options:
          GOLD_ORE: '120-150'
          NETHER_GOLD_ORE: '130-160'
          NETHER_QUARTZ_ORE: '130-160'
-         DIAMOND_ORE: '140-170.12'
-         EMERALD_ORE: '150-180.5'
+         DIAMOND_ORE: '140-170'
+         EMERALD_ORE: '150-180'
 

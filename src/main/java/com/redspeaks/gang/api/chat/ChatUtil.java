@@ -26,4 +26,13 @@ public class ChatUtil {
        DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
        return decimalFormat.format(number);
     }
+
+    public static boolean isInt(String text) {
+        try {
+            Integer.parseInt(text);
+        }catch (NullPointerException e) {
+            return false;
+        }
+        return true;
+    }
 }
