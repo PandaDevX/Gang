@@ -1,10 +1,10 @@
 package com.redspeaks.gang.commands;
 
-import com.earth2me.essentials.ITarget;
 import com.redspeaks.gang.api.command.AbstractCommand;
 import com.redspeaks.gang.api.command.CommandInfo;
 import com.redspeaks.gang.api.gangs.GangPlayer;
 import com.redspeaks.gang.api.gangs.GangType;
+import com.redspeaks.gang.api.gangs.LeaderBoard;
 import com.redspeaks.gang.gui.GangInfo;
 import com.redspeaks.gang.gui.MainGUI;
 import com.redspeaks.gang.objects.Gang;
@@ -42,6 +42,10 @@ public class GangCommand extends AbstractCommand {
             return;
         }
         if(args[0].equalsIgnoreCase("set")) {
+            if(!player.hasPermission("gang.admin")) {
+                sendMessage(player, "&7Insufficient permission");
+                return;
+            }
             if(args.length != 3) {
                 gangPlayer.sendMessage("&7Correct argument: &c/gang set <player> <gang>");
                 return;
@@ -57,6 +61,10 @@ public class GangCommand extends AbstractCommand {
             return;
         }
         if(args[0].equalsIgnoreCase("info")) {
+            if(!player.hasPermission("gang.admin")) {
+                sendMessage(player, "&7Insufficient permission");
+                return;
+            }
             if(args.length != 2) {
                 gangPlayer.sendMessage("&7Correct argument: &c/gang info <player>");
                 return;
@@ -70,6 +78,29 @@ public class GangCommand extends AbstractCommand {
             GangInfo gangInfo = new GangInfo();
             gangInfo.openInventory(targetPlayer.asPlayer(), player);
             gangInfo = null;
+            return;
+        }
+        if(args[0].equalsIgnoreCase("leaderboard")) {
+            if(!gangPlayer.hasGang()) {
+                gangPlayer.sendMessage("&7You must be in a gang to do that");
+                return;
+            }
+            if(args.length == 1) {
+                LeaderBoard leaderBoard = Gang.getPlayer(player).getGang().getLeaderBoard();
+                leaderBoard.showTo(Gang.getPlayer(player));
+                return;
+            }
+            if(!player.hasPermission("gang.admin")) {
+                sendMessage(player, "&7Insufficient permission");
+                return;
+            }
+            GangType gangType = GangType.getGang(args[1]);
+            if(gangType == null) {
+                gangPlayer.sendMessage("&7Unknown gang");
+                return;
+            }
+            LeaderBoard leaderBoard = gangType.getLeaderBoard();
+            leaderBoard.showTo(gangPlayer);
             return;
         }
 

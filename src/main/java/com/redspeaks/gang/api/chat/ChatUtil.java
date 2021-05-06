@@ -3,7 +3,7 @@ package com.redspeaks.gang.api.chat;
 import org.bukkit.ChatColor;
 
 import java.text.DecimalFormat;
-import java.util.List;
+import java.util.*;
 
 public class ChatUtil {
 
@@ -34,5 +34,31 @@ public class ChatUtil {
             return false;
         }
         return true;
+    }
+
+    public static Integer getHighestValue(List<Integer> list) {
+        Collections.sort(list);
+        return list.get(0);
+    }
+
+    public static int parseInt(String text) {
+        return Integer.parseInt(text);
+    }
+
+    public static HashMap<String, Double> sortByValue(HashMap<String, Double> hm)
+    {
+        // Create a list from elements of HashMap
+        List<Map.Entry<String, Double> > list =
+                new LinkedList<>(hm.entrySet());
+
+        // Sort the list
+        Collections.sort(list, (o1, o2) -> (o2.getValue()).compareTo(o1.getValue()));
+
+        // put data from sorted list to hashmap
+        HashMap<String, Double> temp = new LinkedHashMap<>();
+        for (Map.Entry<String, Double> aa : list) {
+            temp.put(aa.getKey(), aa.getValue());
+        }
+        return temp;
     }
 }

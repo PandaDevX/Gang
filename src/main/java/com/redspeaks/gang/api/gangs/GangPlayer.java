@@ -31,9 +31,9 @@ public interface GangPlayer {
 
     double getGoalExp();
 
-    public PlayerData getPlayerData();
+    PlayerData getPlayerData();
 
-    public void setGang(GangType gang);
+    void setGang(GangType gang);
 
     boolean isOnline();
 

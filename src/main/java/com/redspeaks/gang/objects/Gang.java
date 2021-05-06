@@ -228,8 +228,4 @@ public class Gang {
         return gangPlayer;
     }
 
-    public static LeaderBoard getLeaderBoard(GangType gangType) {
-        return null;
-    }
-
 }
