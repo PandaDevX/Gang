@@ -5,6 +5,9 @@ MySQL:
   user: 'root'
   pass: ''
 
+Join Message:
+   title: '&6&lJoined &2{gang}'
+   broadcast: '&7Player &c{player} &7has joined the gang'
 
 GUI:
   Miner Gang:
@@ -66,6 +69,7 @@ Options:
          - 1
 
    Token Gang:
+      prefix: '&aMoney &f'
       # bonus token ( 5% of the token earned )
       profit: 5
       # Formula : player level x ( 20% of token earned )
@@ -85,6 +89,7 @@ Options:
         - 1
 
    Miner Gang:
+      prefix: '&aMoney &f'
       goal: 1024
       increment: 40
       reward-multiplier:

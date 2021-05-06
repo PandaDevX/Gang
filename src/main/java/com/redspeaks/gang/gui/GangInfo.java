@@ -53,7 +53,7 @@ public class GangInfo implements Listener {
     public void onClick(InventoryClickEvent e) {
         if(e.getClickedInventory() == null) return;
         if(e.getClickedInventory().equals(e.getWhoClicked().getInventory()))return;
-        if(ChatUtil.stripColor(e.getView().getTitle()).equals("Gang Info")) return;
+        if(!ChatUtil.stripColor(e.getView().getTitle()).equals("Gang Info")) return;
         e.setCancelled(true);
     }
 }

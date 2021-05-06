@@ -4,9 +4,10 @@ import com.redspeaks.gang.api.chat.ChatUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-public abstract class AbstractCommand implements CommandExecutor {
+public abstract class AbstractCommand implements CommandExecutor, TabCompleter {
     private final CommandInfo info;
 
     public AbstractCommand() {

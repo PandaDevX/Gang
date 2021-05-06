@@ -3,6 +3,7 @@ package com.redspeaks.gang;
 import com.redspeaks.gang.api.chat.ChatUtil;
 import com.redspeaks.gang.api.command.AbstractCommand;
 import com.redspeaks.gang.api.gangs.GangPlayer;
+import com.redspeaks.gang.api.gangs.GangType;
 import com.redspeaks.gang.api.gangs.Storage;
 import com.redspeaks.gang.commands.GangCommand;
 import com.redspeaks.gang.commands.GangManagerCommand;
@@ -12,15 +13,12 @@ import com.redspeaks.gang.gui.MainGUI;
 import com.redspeaks.gang.listeners.*;
 import com.redspeaks.gang.objects.Database;
 import com.redspeaks.gang.objects.Gang;
-import com.redspeaks.gang.scoreboard.GangScoreboard;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scoreboard.Team;
-
-import java.util.AbstractList;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public final class GangPlugin extends JavaPlugin {
 
@@ -43,8 +41,10 @@ public final class GangPlugin extends JavaPlugin {
 
         AbstractCommand abstractCommand = new GangCommand();
         getCommand(abstractCommand.getInfo().name()).setExecutor(abstractCommand);
+        getCommand(abstractCommand.getInfo().name()).setTabCompleter(abstractCommand);
         AbstractCommand managerCommand = new GangManagerCommand();
         getCommand(managerCommand.getInfo().name()).setExecutor(managerCommand);
+        getCommand(managerCommand.getInfo().name()).setTabCompleter(managerCommand);
 
         getServer().getPluginManager().registerEvents(new MiningListener(), this);
         getServer().getPluginManager().registerEvents(new MoneyGangListener(), this);
@@ -57,6 +57,17 @@ public final class GangPlugin extends JavaPlugin {
         DatabaseManager databaseManager = getDatabaseManager();
         databaseManager.createTableForGangs();
         databaseManager.loadData();
+
+        new BukkitRunnable() {
+            public void run() {
+                if(!Bukkit.getOnlinePlayers().isEmpty()) {
+                    for(Player player : Bukkit.getOnlinePlayers()) {
+                        GangPlayer gangPlayer = Gang.getPlayer(player);
+                        ChatUtil.reloadNameTag(gangPlayer);
+                    }
+                }
+            }
+        }.runTaskLater(this, 2L);
 
 
         getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
@@ -101,17 +112,7 @@ public final class GangPlugin extends JavaPlugin {
             Storage.playerDatabase.clear();
         }
 
-        if(!Bukkit.getOnlinePlayers().isEmpty()) {
-            for(Player player : Bukkit.getOnlinePlayers()) {
-                GangPlayer gangPlayer = Gang.getPlayer(player);
-                if(gangPlayer.hasGang()) {
-                    Team team = gangPlayer.getGang().getTeam();
-                    if(team.hasPlayer(gangPlayer.asOfflinePlayer())) {
-                        team.removePlayer(gangPlayer.asOfflinePlayer());
-                    }
-                }
-            }
-        }
+        GangType.removeAllFromTeam();
 
         getDatabaseManager().close();
     }
@@ -167,9 +168,5 @@ public final class GangPlugin extends JavaPlugin {
                 return getConfig().getString("MySQL.pass");
             }
         };
-    }
-
-    public GangScoreboard gangScoreboard() {
-        return new GangScoreboard();
     }
 }

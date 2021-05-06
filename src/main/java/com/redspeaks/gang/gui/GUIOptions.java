@@ -66,4 +66,33 @@ public class GUIOptions {
 
         return item;
     }
+
+    public static ItemStack getSkull(OfflinePlayer player, String displayName, String... lore) {
+
+        boolean isNewVersion = Arrays.stream(Material.values())
+                .map(Material::name)
+                .collect(Collectors.toList())
+                .contains("PLAYER_HEAD");
+
+        Material type = Material.matchMaterial(isNewVersion ? "PLAYER_HEAD" : "SKULL_ITEM");
+
+        ItemStack item = new ItemStack(type);
+
+        if(!isNewVersion) {
+            item.setDurability((short) 3);
+        }
+
+        SkullMeta meta = (SkullMeta) item.getItemMeta();
+        if(isNewVersion) {
+            meta.setOwningPlayer(player);
+        }else {
+            meta.setOwner(player.getName());
+        }
+        meta.setDisplayName(ChatUtil.colorize(displayName));
+        meta.setLore(ChatUtil.colorizeList(Arrays.asList(lore)));
+
+        item.setItemMeta(meta);
+
+        return item;
+    }
 }

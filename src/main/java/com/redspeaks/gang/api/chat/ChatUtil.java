@@ -1,6 +1,10 @@
 package com.redspeaks.gang.api.chat;
 
+import com.redspeaks.gang.api.gangs.GangPlayer;
 import org.bukkit.ChatColor;
+import org.bukkit.scoreboard.NameTagVisibility;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -37,8 +41,13 @@ public class ChatUtil {
     }
 
     public static Integer getHighestValue(List<Integer> list) {
-        Collections.sort(list);
+        Collections.reverse(list);
         return list.get(0);
+    }
+
+    public static Integer getHighestValue(List<Integer> list, int number) {
+        Collections.reverse(list);
+        return list.get(number);
     }
 
     public static int parseInt(String text) {
@@ -60,5 +69,19 @@ public class ChatUtil {
             temp.put(aa.getKey(), aa.getValue());
         }
         return temp;
+    }
+
+    public static void reloadNameTag(GangPlayer gangPlayer) {
+        if(gangPlayer.hasGang()) {
+            String[] nameTag = gangPlayer.getGang().getNameTagPrefix();
+
+            Scoreboard scoreboard = gangPlayer.asPlayer().getScoreboard();
+
+            Team team = scoreboard.getTeam(gangPlayer.getGang().getPrefix()) == null ? scoreboard.registerNewTeam(gangPlayer.getGang().getPrefix()) : scoreboard.getTeam(gangPlayer.getGang().getPrefix());
+            team.setPrefix(ChatUtil.colorize(nameTag[0] + " "));
+            team.setColor(ChatColor.getByChar(nameTag[1].replace("&", "")));
+            team.setNameTagVisibility(NameTagVisibility.ALWAYS);
+            team.addPlayer(gangPlayer.asOfflinePlayer());
+        }
     }
 }

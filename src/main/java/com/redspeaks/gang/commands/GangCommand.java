@@ -1,5 +1,7 @@
 package com.redspeaks.gang.commands;
 
+import com.redspeaks.gang.GangPlugin;
+import com.redspeaks.gang.api.chat.ChatUtil;
 import com.redspeaks.gang.api.command.AbstractCommand;
 import com.redspeaks.gang.api.command.CommandInfo;
 import com.redspeaks.gang.api.gangs.GangPlayer;
@@ -10,10 +12,19 @@ import com.redspeaks.gang.gui.MainGUI;
 import com.redspeaks.gang.objects.Gang;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @CommandInfo(name = "gang", permission = "gang.player", requiresPlayer = true)
-public class GangCommand extends AbstractCommand {
+public class GangCommand extends AbstractCommand implements TabCompleter {
 
     @Override
     public void execute(Player player, String[] args) {
@@ -103,8 +114,36 @@ public class GangCommand extends AbstractCommand {
             leaderBoard.showTo(gangPlayer);
             return;
         }
-
+        if(args[0].equalsIgnoreCase("reload")) {
+            GangPlugin.getInstance().reloadConfig();
+            if(!Bukkit.getOnlinePlayers().isEmpty()) {
+                new BukkitRunnable() {
+                    public void run() {
+                        if(!Bukkit.getOnlinePlayers().isEmpty()) {
+                            for(Player player : Bukkit.getOnlinePlayers()) {
+                                GangPlayer gangPlayer = Gang.getPlayer(player);
+                                ChatUtil.reloadNameTag(gangPlayer);
+                            }
+                        }
+                    }
+                }.runTask(GangPlugin.getInstance());
+            }
+            return;
+        }
         gangPlayer.sendMessage("&7Unknown command");
 
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
+        List<String> commands = Arrays.asList("admin", "set", "info", "reload", "leaderboard");
+        if(args.length == 1) {
+            if(sender.hasPermission("gang.player")) {
+                return Collections.singletonList("leaderboard");
+            }
+            return commands;
+        }
+        return null;
     }
 }

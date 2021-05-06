@@ -7,7 +7,17 @@ import com.redspeaks.gang.api.gangs.GangPlayer;
 import com.redspeaks.gang.objects.Gang;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @CommandInfo(name = "gangman", permission = "gang.admin")
 public class GangManagerCommand extends AbstractCommand {
@@ -67,5 +77,34 @@ public class GangManagerCommand extends AbstractCommand {
                 break;
         }
         return;
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
+        if(args.length == 1) {
+            if(sender.hasPermission("gang.admin")) {
+                return Arrays.asList("exp", "level");
+            }
+        }
+        if(args.length == 2) {
+            if(sender.hasPermission("gang.admin")) {
+                if(!args[1].equals("")) {
+                    List<String> playerNames = new ArrayList<>();
+                    for(Player player : Bukkit.getOnlinePlayers()) {
+                        if(player.getName().startsWith(args[1])) {
+                            playerNames.add(player.getName());
+                        }
+                    }
+                    return playerNames;
+                }
+            }
+        }
+        if(args.length == 3) {
+            if(sender.hasPermission("gang.admin")) {
+                return Arrays.asList("set","add");
+            }
+        }
+        return null;
     }
 }
