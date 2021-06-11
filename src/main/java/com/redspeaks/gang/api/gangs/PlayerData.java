@@ -1,16 +1,71 @@
 package com.redspeaks.gang.api.gangs;
 
-public interface PlayerData {
+public class PlayerData implements Comparable<PlayerData> {
 
-    int level();
+    private int level;
+    private double exp;
+    private GangType type;
+    private final String uuid;
+    private final int hash;
+    public PlayerData(String uuid, int level, double exp, GangType type) {
+        this.level = level;
+        this.exp = exp;
+        this.type = type;
+        this.uuid = uuid;
+        this.hash = uuid.hashCode();
+    }
 
-    double exp();
+    public String getUniqueId() {
+        return uuid;
+    }
 
-    GangType gang();
+    public int level() {
+        return level;
+    }
 
-    void setExp(double exp);
+    public double exp() {
+        return exp;
+    }
 
-    void setLevel(int level);
+    public GangType gang() {
+        return type;
+    }
 
-    void setGang(GangType gang);
+    public void setExp(double exp) {
+        this.exp = exp;
+    }
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public void setGang(GangType type) {
+        this.type = type;
+    }
+
+    @Override
+    public int compareTo(PlayerData playerData) {
+        int compare = Integer.compare(level(), playerData.level());
+        if(compare == 0) {
+            compare = Double.compare(exp(), playerData.exp());
+        }
+        return compare;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) {
+            return true;
+        }
+        if(!(obj instanceof PlayerData)) {
+            return false;
+        }
+        PlayerData otherData = (PlayerData) obj;
+        return getUniqueId().equals(otherData.getUniqueId());
+    }
+
+    @Override
+    public int hashCode() {
+        return hash;
+    }
+
 }

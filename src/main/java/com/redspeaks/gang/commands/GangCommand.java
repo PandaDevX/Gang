@@ -114,6 +114,15 @@ public class GangCommand extends AbstractCommand implements TabCompleter {
             leaderBoard.showTo(gangPlayer);
             return;
         }
+        if(args[0].equalsIgnoreCase("leave")) {
+            if(!gangPlayer.hasGang()) {
+                gangPlayer.sendMessage("&7You must be in a gang to do that");
+                return;
+            }
+            gangPlayer.sendMessage("&7You successfully left the gang &a" + gangPlayer.getGang().getName());
+            gangPlayer.setGang(GangType.UNKNOWN);
+            return;
+        }
         if(args[0].equalsIgnoreCase("reload")) {
             GangPlugin.getInstance().reloadConfig();
             if(!Bukkit.getOnlinePlayers().isEmpty()) {
@@ -140,7 +149,7 @@ public class GangCommand extends AbstractCommand implements TabCompleter {
         List<String> commands = Arrays.asList("admin", "set", "info", "reload", "leaderboard");
         if(args.length == 1) {
             if(sender.hasPermission("gang.player")) {
-                return Collections.singletonList("leaderboard");
+                return Arrays.asList("leaderboard", "leave");
             }
             return commands;
         }

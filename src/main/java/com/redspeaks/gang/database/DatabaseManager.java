@@ -2,10 +2,12 @@ package com.redspeaks.gang.database;
 
 import com.redspeaks.gang.GangPlugin;
 import com.redspeaks.gang.api.gangs.DataHandler;
+import com.redspeaks.gang.api.gangs.GangType;
+import com.redspeaks.gang.api.gangs.PlayerData;
 import com.redspeaks.gang.api.gangs.Storage;
 import com.redspeaks.gang.objects.Database;
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.entity.Player;
 
 import java.sql.*;
 import java.util.HashMap;
@@ -13,7 +15,7 @@ import java.util.HashMap;
 public class DatabaseManager {
 
     private Connection connection = null;
-    private Database database = GangPlugin.getInstance().getDatabase();
+    private final Database database = GangPlugin.getInstance().getDatabase();
 
     public Connection getConnection() {
         if(connection == null) {
@@ -47,8 +49,11 @@ public class DatabaseManager {
     }
 
     public void loadManager(DataHandler dataHandler) {
-        Bukkit.getScheduler().runTaskAsynchronously(GangPlugin.getInstance(), () -> {
-            try(PreparedStatement ps = preparedStatement("SELECT * FROM gangs")) {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(GangPlugin.getInstance(), () -> {
+            try(PreparedStatement ps = preparedStatement("SELECT * FROM gangs WHERE uuid=?")) {
+                for(Player player : Bukkit.getOnlinePlayers()) {
+                    ps.setString(1, player.getUniqueId().toString());
+                }
                 try(ResultSet resultSet = ps.executeQuery()) {
                     dataHandler.distributeData(resultSet);
                 }
@@ -58,20 +63,48 @@ public class DatabaseManager {
         });
     }
 
-    public void saveData(HashMap<String, String> data) {
+    public void loadManager(DataHandler dataHandler, Player player) {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(GangPlugin.getInstance(), () -> {
+            try(PreparedStatement ps = preparedStatement("SELECT * FROM gangs WHERE uuid=?")) {
+                ps.setString(1, player.getUniqueId().toString());
+                try(ResultSet resultSet = ps.executeQuery()) {
+                    dataHandler.distributeData(resultSet);
+                }
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void saveData(HashMap<String, PlayerData> data) {
         try(PreparedStatement ps = preparedStatement("INSERT INTO gangs (uuid,level,exp,gang) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE level=?, exp=?, gang=?")) {
             for (String uuid : data.keySet()) {
-                String[] readData = data.get(uuid).split("::");
-                System.out.println("saving " + readData[0] + readData[1] + readData[2]);
-                ps.setString(1, uuid);
-                ps.setInt(2, Integer.parseInt(readData[0]));
-                ps.setDouble(3, Double.parseDouble(readData[1]));
-                ps.setString(4, readData[2]);
-                ps.setInt(5, Integer.parseInt(readData[0]));
-                ps.setDouble(6, Double.parseDouble(readData[1]));
-                ps.setString(7, readData[2]);
+                PlayerData playerData = data.get(uuid);
+                ps.setString(1, playerData.getUniqueId());
+                ps.setInt(2, playerData.level());
+                ps.setDouble(3, playerData.exp());
+                ps.setString(4, playerData.gang().getPrefix());
+                ps.setInt(5, playerData.level());
+                ps.setDouble(6, playerData.exp());
+                ps.setString(7, playerData.gang().getPrefix());
                 ps.executeUpdate();
             }
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveData(HashMap<String, PlayerData> data, Player player) {
+        try(PreparedStatement ps = preparedStatement("INSERT INTO gangs (uuid,level,exp,gang) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE level=?, exp=?, gang=?")) {
+            PlayerData playerData = data.get(player.getUniqueId().toString());
+            ps.setString(1, playerData.getUniqueId());
+            ps.setInt(2, playerData.level());
+            ps.setDouble(3, playerData.exp());
+            ps.setString(4, playerData.gang().getPrefix());
+            ps.setInt(5, playerData.level());
+            ps.setDouble(6, playerData.exp());
+            ps.setString(7, playerData.gang().getPrefix());
+            ps.executeUpdate();
         }catch (SQLException e) {
             e.printStackTrace();
         }
@@ -82,14 +115,31 @@ public class DatabaseManager {
         loadManager(resultSet -> {
             try {
                 while (resultSet.next()) {
-                    String data[] = {resultSet.getString("uuid"), resultSet.getInt("level") + "", resultSet.getDouble("exp") + "", resultSet.getString("gang")};
-                    Storage.playerDatabase.put(data[0], data[1] + "::" + data[2] + "::" + data[3]);
-                    data = null;
+                    Storage.playerDatabase.put(resultSet.getString("uuid"), new PlayerData(resultSet.getString("uuid"),
+                            resultSet.getInt("level"),
+                            resultSet.getDouble("exp"),
+                            GangType.getGang(resultSet.getString("gang"))));
                 }
             }catch (SQLException e) {
                 e.printStackTrace();
             }
         });
+    }
+
+    public void loadData(Player player) {
+        createTableForGangs();
+        loadManager(resultSet -> {
+            try {
+                while (resultSet.next()) {
+                    Storage.playerDatabase.put(resultSet.getString("uuid"), new PlayerData(resultSet.getString("uuid"),
+                            resultSet.getInt("level"),
+                            resultSet.getDouble("exp"),
+                            GangType.getGang(resultSet.getString("gang"))));
+                }
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }, player);
     }
 
     public PreparedStatement preparedStatement(String statement) throws SQLException {

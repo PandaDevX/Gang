@@ -67,38 +67,13 @@ public enum GangType {
         final LeaderBoard leaderBoard = new LeaderBoard() {
             @Override
             public void showTo(GangPlayer gangPlayer) {
-                if (Storage.playerDatabase.isEmpty()) {
-                    gangPlayer.sendMessage("&7Leaderboards are empty");
-                    return;
-                }
-                List<String> members = Storage.playerDatabase.keySet().stream().filter(
-                        t -> Storage.playerDatabase.get(t).split("::")[2].equals(getPrefix())
-                ).collect(Collectors.toList());
-                List<Integer> levels = new ArrayList<>();
-                for (String member : members) {
-                    int level = Integer.parseInt(Storage.playerDatabase.get(member).split("::")[0]);
-                    levels.add(level);
-                }
-                int index = 0;
-                int highestLevel = ChatUtil.getHighestValue(levels, index);
-                List<String> membersHighest = members.stream().filter(
-                        t -> (ChatUtil.parseInt(Storage.playerDatabase.get(t).split("::")[0]) == highestLevel)
-                ).collect(Collectors.toList());
-
-                while (membersHighest.size() > members.size()) {
-                    int anotherLevel = ChatUtil.getHighestValue(levels, ++index);
-                    members.addAll(members.stream().filter(
-                            t -> (ChatUtil.parseInt(Storage.playerDatabase.get(t).split("::")[0]) == anotherLevel)
-                    ).collect(Collectors.toList()));
-                }
-
-
-                HashMap<String, Double> playerExps = new HashMap<>();
-                membersHighest.forEach(
-                        t -> playerExps.put(t, Double.parseDouble(Storage.playerDatabase.get(t).split("::")[1]))
-                );
-                HashMap<String, Double> sortedMap = ChatUtil.sortByValue(playerExps);
-                List<String> top9 = sortedMap.keySet().stream().limit(9).collect(Collectors.toList());
+                Set<PlayerData> playerData = new HashSet<>(Storage.playerDatabase.values());
+                List<PlayerData> orderedList = new ArrayList<>(playerData);
+                Collections.reverse(orderedList);
+                List<String> top9 = orderedList.stream()
+                        .map(PlayerData::getUniqueId)
+                        .limit(9)
+                        .collect(Collectors.toList());
                 int[] slotsToFill = {4, 12, 13, 14, 20, 21, 22, 23, 24};
                 Inventory inventory = Bukkit.createInventory(null, 4 * 9, ChatUtil.colorize("&eLeaderboard"));
                 ItemStack itemStack = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
@@ -120,31 +95,14 @@ public enum GangType {
             }
 
             @Override
-            public void showTo(Player player) {
-                if (Storage.playerDatabase.isEmpty()) {
-                    player.sendMessage(ChatUtil.colorize("&7Leaderboards are empty"));
-                    return;
-                }
-                List<String> members = Storage.playerDatabase.keySet().stream().filter(
-                        t -> Storage.playerDatabase.get(t).split("::")[2].equals(getPrefix())
-                ).collect(Collectors.toList());
-                List<Integer> levels = new ArrayList<>();
-                for (String member : members) {
-                    int level = Integer.parseInt(Storage.playerDatabase.get(member).split("::")[0]);
-                    levels.add(level);
-                }
-                int highestLevel = ChatUtil.getHighestValue(levels);
-                List<String> membersHighest = members.stream().filter(
-                        t -> (ChatUtil.parseInt(Storage.playerDatabase.get(t).split("::")[0]) == highestLevel)
-                ).collect(Collectors.toList());
-
-
-                HashMap<String, Double> playerExps = new HashMap<>();
-                membersHighest.forEach(
-                        t -> playerExps.put(t, Double.parseDouble(Storage.playerDatabase.get(t).split("::")[1]))
-                );
-                HashMap<String, Double> sortedMap = ChatUtil.sortByValue(playerExps);
-                List<String> top9 = sortedMap.keySet().stream().limit(9).collect(Collectors.toList());
+            public void showTo(Player p) {
+                Set<PlayerData> playerData = new HashSet<>(Storage.playerDatabase.values());
+                List<PlayerData> orderedList = new ArrayList<>(playerData);
+                Collections.reverse(orderedList);
+                List<String> top9 = orderedList.stream()
+                        .map(PlayerData::getUniqueId)
+                        .limit(9)
+                        .collect(Collectors.toList());
                 int[] slotsToFill = {4, 12, 13, 14, 20, 21, 22, 23, 24};
                 Inventory inventory = Bukkit.createInventory(null, 4 * 9, ChatUtil.colorize("&eLeaderboard"));
                 ItemStack itemStack = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
@@ -155,22 +113,20 @@ public enum GangType {
                     inventory.setItem(i, itemStack);
                 }
                 for (int i = 0; i < 9; i++) {
-                    if (top9.get(i) == null)
+                    if(top9.size() <= i) {
                         continue;
-                    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(top9.get(i)));
-                    ItemStack head = GUIOptions.getSkull(offlinePlayer, "&b" + offlinePlayer.getName(), "", "&6&l&nLevel:&2 " + Gang.getPlayer(offlinePlayer).getLevel(), "&6&l&nExp:&2 " + Gang.getPlayer(offlinePlayer).getExp());
+                    }
+                    OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(top9.get(i)));
+                    ItemStack head = GUIOptions.getSkull(player, "&bTop &c&l" + (i+1), "", "&6&l&nName:&c&l ( " + player.getName() + " )", "&6&l&nLevel:&c&l ( " + Gang.getPlayer(player).getLevel() + " )", "&6&l&nExp:&c&l ( " + Gang.getPlayer(player).getExp() + " )");
                     inventory.setItem(slotsToFill[i], head);
                 }
-                player.openInventory(inventory);
+                p.openInventory(inventory);
             }
         };
         return leaderBoard;
     }
 
     public static GangType getGang(String prefix) {
-        if(prefix.equalsIgnoreCase("empty") || prefix.equalsIgnoreCase("No gang")) {
-            return null;
-        }
         for(GangType gangType : GangType.values()) {
             if(gangType.getPrefix().equalsIgnoreCase(prefix) || gangType.getName().equalsIgnoreCase(prefix)) {
                 return gangType;

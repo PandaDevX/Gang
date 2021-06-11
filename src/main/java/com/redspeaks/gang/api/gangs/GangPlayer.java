@@ -40,4 +40,6 @@ public interface GangPlayer {
     void sendMessage(String message);
 
     void sendTitle(String message);
+
+    void finalize();
 }

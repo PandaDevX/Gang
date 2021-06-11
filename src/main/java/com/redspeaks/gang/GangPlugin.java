@@ -16,6 +16,7 @@ import com.redspeaks.gang.objects.Gang;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.ServerOperator;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -56,7 +57,9 @@ public final class GangPlugin extends JavaPlugin {
 
         DatabaseManager databaseManager = getDatabaseManager();
         databaseManager.createTableForGangs();
-        databaseManager.loadData();
+        if(!Bukkit.getOnlinePlayers().isEmpty()) {
+            databaseManager.loadData();
+        }
 
         new BukkitRunnable() {
             public void run() {
@@ -70,17 +73,17 @@ public final class GangPlugin extends JavaPlugin {
         }.runTaskLater(this, 2L);
 
 
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
+        getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
             if(!Storage.playerDatabase.isEmpty()) {
                 if(!Bukkit.getOnlinePlayers().isEmpty()) {
-                    Bukkit.getOnlinePlayers().stream().filter(p -> p.isOp()).forEach(
+                    Bukkit.getOnlinePlayers().stream().filter(ServerOperator::isOp).forEach(
                             p -> p.sendMessage(ChatUtil.colorize("&c&l(!) &7Attempting to save all the datas"))
                     );
                 }
                 getServer().getConsoleSender().sendMessage(ChatUtil.colorize("&c&l(!) &7Attempting to save all the datas"));
                 getDatabaseManager().saveData(Storage.playerDatabase);
                 if(!Bukkit.getOnlinePlayers().isEmpty()) {
-                    Bukkit.getOnlinePlayers().stream().filter(p -> p.isOp()).forEach(
+                    Bukkit.getOnlinePlayers().stream().filter(ServerOperator::isOp).forEach(
                             p -> p.sendMessage(ChatUtil.colorize("&c&l(!) &7Successfully saved to database"))
                     );
                 }
@@ -88,14 +91,14 @@ public final class GangPlugin extends JavaPlugin {
                 Storage.playerDatabase.clear();
 
                 if(!Bukkit.getOnlinePlayers().isEmpty()) {
-                    Bukkit.getOnlinePlayers().stream().filter(p -> p.isOp()).forEach(
+                    Bukkit.getOnlinePlayers().stream().filter(ServerOperator::isOp).forEach(
                             p -> p.sendMessage(ChatUtil.colorize("&c&l(!) &7Attempting to reload all the datas"))
                     );
                 }
                 getServer().getConsoleSender().sendMessage(ChatUtil.colorize("&c&l(!) &7Attempting to reload all the datas"));
                 getDatabaseManager().loadData();
                 if(!Bukkit.getOnlinePlayers().isEmpty()) {
-                    Bukkit.getOnlinePlayers().stream().filter(p -> p.isOp()).forEach(
+                    Bukkit.getOnlinePlayers().stream().filter(ServerOperator::isOp).forEach(
                             p -> p.sendMessage(ChatUtil.colorize("&c&l(!) &7Successfully reloaded data from database"))
                     );
                 }
@@ -115,6 +118,8 @@ public final class GangPlugin extends JavaPlugin {
         GangType.removeAllFromTeam();
 
         getDatabaseManager().close();
+
+        Gang.clear();
     }
 
     public DatabaseManager getDatabaseManager() {

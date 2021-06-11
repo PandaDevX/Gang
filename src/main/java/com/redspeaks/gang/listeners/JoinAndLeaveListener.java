@@ -5,11 +5,14 @@ import com.redspeaks.gang.api.chat.ChatUtil;
 import com.redspeaks.gang.api.events.GangPlayerJoinEvent;
 import com.redspeaks.gang.api.gangs.GangPlayer;
 import com.redspeaks.gang.api.gangs.GangType;
+import com.redspeaks.gang.api.gangs.Storage;
+import com.redspeaks.gang.database.DatabaseManager;
 import com.redspeaks.gang.objects.Gang;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class JoinAndLeaveListener implements Listener {
@@ -24,6 +27,13 @@ public class JoinAndLeaveListener implements Listener {
             }
         }.runTask(GangPlugin.getInstance());
 
+        GangPlugin.getInstance().getDatabaseManager().loadData(e.getPlayer());
+
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        GangPlugin.getInstance().getDatabaseManager().saveData(Storage.playerDatabase, e.getPlayer());
     }
 
     @EventHandler

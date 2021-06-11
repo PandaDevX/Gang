@@ -11,11 +11,16 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
 public class Gang {
+
+
+    private static final HashMap<UUID, GangPlayer> gangRegistry = new HashMap<>();
+    private static final HashMap<UUID, PlayerData> playerDataMap = new HashMap<>();
 
     public static void rewardPlayer(GangPlayer player) {
         List<Integer> list = player.getGang().getRewards();
@@ -24,7 +29,6 @@ public class Gang {
         player.getGang().reward(player, prize);
         random = null;
         list = null;
-        return;
     }
 
     public static double getWorth(Material material) {
@@ -45,11 +49,25 @@ public class Gang {
         return 0;
     }
 
+    public static void clear() {
+        gangRegistry.clear();
+        playerDataMap.clear();
+    }
+
     public static GangPlayer getPlayer(OfflinePlayer player) {
+        if(gangRegistry.containsKey(player.getUniqueId())) {
+            return gangRegistry.get(player.getUniqueId());
+        }
         final GangPlayer gangPlayer = new GangPlayer() {
             @Override
             public boolean equals(Object object) {
-                return player.equals(object);
+                if(this == object) {
+                    return true;
+                }
+                if(!(object instanceof GangPlayer)) {
+                    return false;
+                }
+                return getUniqueId().equals(((GangPlayer)object).getUniqueId());
             }
 
             @Override
@@ -67,13 +85,7 @@ public class Gang {
                 if(!Storage.playerDatabase.containsKey(player.getUniqueId().toString())) {
                     return false;
                 }
-                if(getPlayerData().gang() == null) {
-                    return false;
-                }
-                if(getPlayerData().gang() == GangType.UNKNOWN) {
-                    return false;
-                }
-                return true;
+                return getPlayerData().gang() != GangType.UNKNOWN;
             }
 
             @Override
@@ -142,75 +154,25 @@ public class Gang {
                     Bukkit.getPluginManager().callEvent(new GangPlayerJoinEvent(this, getGang(), type));
                 }
                 getPlayerData().setGang(type);
-                getPlayerData().setLevel(1);
+
             }
 
             @Override
             public void sendTitle(String message) {
-                player.getPlayer().sendTitle(ChatUtil.colorize(message), "", 10, 70, 20);
+                if(player.isOnline()) {
+                    player.getPlayer().sendTitle(ChatUtil.colorize(message), "", 10, 70, 20);
+                }
             }
 
             @Override
             public PlayerData getPlayerData() {
-                return new PlayerData() {
-                    private String[] readData() {
-                        if(Storage.playerDatabase.containsKey(player.getUniqueId().toString())) {
-                            return Storage.playerDatabase.get(player.getUniqueId().toString()).split("::");
-                        }
-                        return null;
-                    }
-
-                    @Override
-                    public int level() {
-                        if(readData() == null) {
-                            return 1;
-                        }
-                        try{
-                            return Integer.parseInt(readData()[0]);
-                        }catch (NumberFormatException e) {
-                            return 1;
-                        }
-
-                    }
-
-                    @Override
-                    public double exp() {
-                        if(readData() == null) {
-                            return 0;
-                        }
-                        try {
-                            return Double.parseDouble(readData()[1]);
-                        }catch (NumberFormatException e) {
-                            return 0;
-                        }
-                    }
-
-                    @Override
-                    public GangType gang() {
-                        if(readData() == null) {
-                            return GangType.UNKNOWN;
-                        }
-                        return GangType.getGang(readData()[2]);
-                    }
-
-                    @Override
-                    public void setExp(double exp) {
-                        String buildData = level() + "::" + exp + "::" + gang().getPrefix();
-                        Storage.playerDatabase.put(player.getUniqueId().toString(), buildData);
-                    }
-
-                    @Override
-                    public void setLevel(int level) {
-                        String buildData = level + "::" + exp() + "::" + gang().getPrefix();
-                        Storage.playerDatabase.put(player.getUniqueId().toString(), buildData);
-                    }
-
-                    @Override
-                    public void setGang(GangType gang) {
-                        String buildData = 1 + "::" + 0D + "::" + gang.getPrefix();
-                        Storage.playerDatabase.put(player.getUniqueId().toString(), buildData);
-                    }
-                };
+                if(playerDataMap.containsKey(getUniqueId())) {
+                    return playerDataMap.get(getUniqueId());
+                }
+                PlayerData playerData = new PlayerData(getUniqueId().toString(),
+                        1, 0, GangType.UNKNOWN);
+                playerDataMap.put(getUniqueId(), playerData);
+                return playerData;
             }
 
             @Override
@@ -224,7 +186,17 @@ public class Gang {
                     player.getPlayer().sendMessage(ChatUtil.colorize(message));
                 }
             }
+
+            @Override
+            public void finalize() {
+                try {
+                    super.finalize();
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+            }
         };
+        gangRegistry.put(player.getUniqueId(), gangPlayer);
         return gangPlayer;
     }
 

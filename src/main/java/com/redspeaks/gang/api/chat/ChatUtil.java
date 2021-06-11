@@ -79,7 +79,11 @@ public class ChatUtil {
 
             Team team = scoreboard.getTeam(gangPlayer.getGang().getPrefix()) == null ? scoreboard.registerNewTeam(gangPlayer.getGang().getPrefix()) : scoreboard.getTeam(gangPlayer.getGang().getPrefix());
             team.setPrefix(ChatUtil.colorize(nameTag[0] + " "));
-            team.setColor(ChatColor.getByChar(nameTag[1].replace("&", "")));
+            try {
+                team.setColor(ChatColor.getByChar(nameTag[1].replace("&", "")));
+            }catch (ArrayIndexOutOfBoundsException e) {
+                team.setColor(ChatColor.GRAY);
+            }
             team.setNameTagVisibility(NameTagVisibility.ALWAYS);
             team.addPlayer(gangPlayer.asOfflinePlayer());
         }
