@@ -9,6 +9,10 @@ Join Message:
    title: '&6&lJoined &2{gang}'
    broadcast: '&7Player &c{player} &7has joined the gang'
 
+Sound:
+  exp-gain: true
+  level-gain: true
+
 GUI:
   Miner Gang:
       name: '&bMiner Gang'

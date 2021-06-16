@@ -1,11 +1,9 @@
 package com.redspeaks.gang.database;
 
 import com.redspeaks.gang.GangPlugin;
-import com.redspeaks.gang.api.gangs.DataHandler;
-import com.redspeaks.gang.api.gangs.GangType;
-import com.redspeaks.gang.api.gangs.PlayerData;
-import com.redspeaks.gang.api.gangs.Storage;
+import com.redspeaks.gang.api.gangs.*;
 import com.redspeaks.gang.objects.Database;
+import com.redspeaks.gang.objects.Gang;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -95,8 +93,9 @@ public class DatabaseManager {
     }
 
     public void saveData(HashMap<String, PlayerData> data, Player player) {
+        GangPlayer gangPlayer = Gang.getPlayer(player);
         try(PreparedStatement ps = preparedStatement("INSERT INTO gangs (uuid,level,exp,gang) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE level=?, exp=?, gang=?")) {
-            PlayerData playerData = data.get(player.getUniqueId().toString());
+            PlayerData playerData = gangPlayer.getPlayerData();
             ps.setString(1, playerData.getUniqueId());
             ps.setInt(2, playerData.level());
             ps.setDouble(3, playerData.exp());
@@ -105,6 +104,7 @@ public class DatabaseManager {
             ps.setDouble(6, playerData.exp());
             ps.setString(7, playerData.gang().getPrefix());
             ps.executeUpdate();
+            data.remove(player.getUniqueId().toString());
         }catch (SQLException e) {
             e.printStackTrace();
         }
@@ -130,7 +130,7 @@ public class DatabaseManager {
         createTableForGangs();
         loadManager(resultSet -> {
             try {
-                while (resultSet.next()) {
+                if (resultSet.next()) {
                     Storage.playerDatabase.put(resultSet.getString("uuid"), new PlayerData(resultSet.getString("uuid"),
                             resultSet.getInt("level"),
                             resultSet.getDouble("exp"),

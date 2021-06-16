@@ -1,5 +1,6 @@
 package com.redspeaks.gang.listeners;
 
+import com.redspeaks.gang.GangPlugin;
 import com.redspeaks.gang.api.chat.ChatUtil;
 import com.redspeaks.gang.api.events.GangPlayerExpChangeEvent;
 import com.redspeaks.gang.api.events.GangPlayerLevelUpEvent;
@@ -30,7 +31,9 @@ public class GangsListener implements Listener {
 
             e.getPlayer().levelUp();
         }
-        e.getPlayer().asPlayer().playSound(e.getPlayer().asPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 2.0f, 2.0f);
+        if(GangPlugin.getInstance().getConfig().getBoolean("Sound.exp-gain")) {
+            e.getPlayer().asPlayer().playSound(e.getPlayer().asPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 2.0f, 2.0f);
+        }
         e.getPlayer().asPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(
                 TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&6&l&nLevel:&2 " + e.getPlayer().getLevel() + " &7Exp: &c" + (ChatUtil.formatNumber(e.getPlayer().getExp())) + " &7/ &c" + ChatUtil.formatNumber(e.getPlayer().getGoalExp())))
         ));
@@ -38,7 +41,9 @@ public class GangsListener implements Listener {
 
     @EventHandler
     public void onLevelUp(GangPlayerLevelUpEvent e) {
-        e.getPlayer().asPlayer().playSound(e.getPlayer().asPlayer().getLocation(), Sound.ENTITY_GHAST_SHOOT, 2.0f, 2.0f);
+        if(GangPlugin.getInstance().getConfig().getBoolean("Sound.level-gain")) {
+            e.getPlayer().asPlayer().playSound(e.getPlayer().asPlayer().getLocation(), Sound.ENTITY_GHAST_SHOOT, 2.0f, 2.0f);
+        }
         e.getPlayer().sendTitle("&6&lYou leveled up to &2" + e.getTo());
 
         GangType gangType = e.getPlayer().getGang();
